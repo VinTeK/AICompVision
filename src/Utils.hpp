@@ -44,8 +44,8 @@ Accumulates the frame differences within 3 frames.
 void myMotionEnergy(cv::Vector<cv::Mat> mh, cv::Mat& dst);
 
 /**
-Draw convex hull on top of a frame.
+Returns a Mat with a convex hull on top of src.
 @param src The source color image
 @param dst The destination greyscale image with convex hull overlayed
 */
-void drawHull(cv::Mat& src, cv::Mat& dst);
+cv::Mat drawHull(cv::Mat& src, cv::Mat& dst);

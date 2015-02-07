@@ -59,14 +59,13 @@ int main(int argc, char** argv) {
 		Mat frameDst = Mat::zeros(curFrame.rows, curFrame.cols, CV_8UC1); 
 
 		// display this frame without any changes
-		imshow("UnchangedOutput", curFrame);
+		//imshow("UnchangedOutput", curFrame);
 
 		// display video with skin tones colored white
 		mySkinDetect(curFrame, frameDst);
-		Mat hull = Mat::zeros(frameDst.rows, frameDst.cols, CV_8UC1);
-		drawHull(frameDst, hull);
-		imshow("SkinDetection", frameDst);
-		break;
+		imshow("UnchangedOutput", frameDst);
+		Mat hull = drawHull(frameDst, hull);
+		imshow("SkinDetection", hull);
 
 		// highlights pixels in this frame that are different from last frame
 		//myFrameDifferencing(prevFrame, curFrame, frameDst);
