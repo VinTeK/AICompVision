@@ -65,6 +65,7 @@ void myMotionEnergy(Vector<Mat> mh, Mat& dst) {
 }
 
 
+// lifted from http://opencv-srf.blogspot.com/2011/09/object-detection-tracking-using-contours.html
 Mat drawHull(cv::Mat& src, cv::Mat& dst) {
 	blur(src, src, Size(3, 3));
 
@@ -72,20 +73,20 @@ Mat drawHull(cv::Mat& src, cv::Mat& dst) {
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
 
-	/// Detect edges using Threshold
+	// Detect edges using Threshold
 	threshold(src, threshold_output, 100, 255, THRESH_BINARY);
 
-	/// Find contours
+	// Find contours
 	findContours(threshold_output, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 
-	/// Find the convex hull object for each contour
-	vector<vector<Point> >hull(contours.size());
+	// Find the convex hull object for each contour
+	vector<vector<Point> > hull(contours.size());
 	for (int i = 0; i < contours.size(); i++)
 	{
 		convexHull(Mat(contours[i]), hull[i], false);
 	}
 
-	/// Draw contours + hull results
+	// Draw contours + hull results
 	Mat drawing = Mat::zeros(threshold_output.size(), CV_8UC3);
 	for (int i = 0; i< contours.size(); i++)
 	{
