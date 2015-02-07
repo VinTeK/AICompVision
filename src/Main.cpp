@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
 		// display video with skin tones colored white
 		mySkinDetect(curFrame, frameDst);
 		imshow("UnchangedOutput", frameDst);
-		Mat hull = drawHull(frameDst, hull);
+		Mat hull = drawHull(frameDst);
 		imshow("SkinDetection", hull);
 
 		// highlights pixels in this frame that are different from last frame
@@ -88,10 +88,13 @@ int main(int argc, char** argv) {
 
 		prevFrame = curFrame;
 	}
-	waitKey(-1);
+	//waitKey(-1);
 
 	cam.release();
 	destroyWindow("MainWindow");
+	destroyWindow("SkinDetection");
+	//destroyWindow("FrameDiff");
+	//destroyWindow("MotionHistory");
 
 	return 0;
 }
