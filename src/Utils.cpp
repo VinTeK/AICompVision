@@ -65,32 +65,28 @@ void myMotionEnergy(Vector<Mat> mh, Mat& dst) {
 }
 
 
-// lifted from http://opencv-srf.blogspot.com/2011/09/object-detection-tracking-using-contours.html
-Mat drawHull(cv::Mat& src, cv::Mat& dst) {
+// lifted from http://docs.opencv.org/doc/tutorials/imgproc/shapedescriptors/hull/hull.html
+Mat drawHull(cv::Mat& src) {
+	static RNG rng(12345);
+
 	blur(src, src, Size(3, 3));
 
-	Mat threshold_output;
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
 
-	// Detect edges using Threshold
-	threshold(src, threshold_output, 100, 255, THRESH_BINARY);
-
 	// Find contours
-	findContours(threshold_output, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+	findContours(src, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 
 	// Find the convex hull object for each contour
 	vector<vector<Point> > hull(contours.size());
-	for (int i = 0; i < contours.size(); i++)
-	{
+	for (int i = 0; i < contours.size(); ++i) {
 		convexHull(Mat(contours[i]), hull[i], false);
 	}
 
 	// Draw contours + hull results
-	Mat drawing = Mat::zeros(threshold_output.size(), CV_8UC3);
-	for (int i = 0; i< contours.size(); i++)
-	{
-		Scalar color = Scalar(theRNG().uniform(0, 255), theRNG().uniform(0, 255), theRNG().uniform(0, 255));
+	Mat drawing = Mat::zeros(src.size(), CV_8UC3);
+	for (int i = 0; i < contours.size(); ++i) {
+		Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
 		drawContours(drawing, contours, i, color, 1, 8, vector<Vec4i>(), 0, Point());
 		drawContours(drawing, hull, i, color, 1, 8, vector<Vec4i>(), 0, Point());
 	}

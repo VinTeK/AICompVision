@@ -46,6 +46,5 @@ void myMotionEnergy(cv::Vector<cv::Mat> mh, cv::Mat& dst);
 /**
 Returns a Mat with a convex hull on top of src.
 @param src The source color image
-@param dst The destination greyscale image with convex hull overlayed
 */
-cv::Mat drawHull(cv::Mat& src, cv::Mat& dst);
+cv::Mat drawHull(cv::Mat& src);
