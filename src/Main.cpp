@@ -1,6 +1,4 @@
-//#include "stdafx.h"
-
-#include <iostream>
+#include "stdafx.h"
 #include <opencv2/highgui/highgui.hpp>
 #include "Utils.hpp"
 
