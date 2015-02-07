@@ -25,11 +25,12 @@ void mySkinDetect(Mat& src, Mat& dst) {
 	for (int i = 0; i < src.rows; i++){
 		for (int j = 0; j < src.cols; j++){
 			//For each pixel, compute the average intensity of the 3 color channels
-			Vec3b intensity = src.at<Vec3b>(i, j); //Vec3b is a vector of 3 uchar (unsigned character)
+			Vec3b intensity = src.at<Vec3b>(i, j); //Vec3b is a vector of 3 uchar
 			int B = intensity[0]; int G = intensity[1]; int R = intensity[2];
 			if ((R > 95 && G > 40 && B > 20)
-				&& (myMax(R, G, B) - myMin(R, G, B) > 15)
-				&& (abs(R - G) > 15) && (R > G) && (R > B)){
+			 && (myMax(R, G, B) - myMin(R, G, B) > 15)
+			 && (abs(R - G) > 15) && (R > G) && (R > B)) {
+
 				dst.at<uchar>(i, j) = 255;
 			}
 		}
@@ -39,9 +40,9 @@ void mySkinDetect(Mat& src, Mat& dst) {
 
 void myFrameDifferencing(Mat& prev, Mat& curr, Mat& dst) {
 	absdiff(prev, curr, dst);
-	Mat gs = dst.clone();
-	cvtColor(dst, gs, CV_BGR2GRAY);
-	dst = gs > 50;
+	Mat grey = dst.clone();
+	cvtColor(dst, grey, CV_BGR2GRAY);
+	dst = grey > 35; // default 50
 	Vec3b intensity = dst.at<Vec3b>(100, 100);
 }
 
@@ -53,10 +54,18 @@ void myMotionEnergy(Vector<Mat> mh, Mat& dst) {
 
 	for (int i = 0; i < dst.rows; i++){
 		for (int j = 0; j < dst.cols; j++){
-			if (mh0.at<uchar>(i, j) == 255 || mh1.at<uchar>(i, j) == 255
-				|| mh2.at<uchar>(i, j) == 255) {
+			if (mh0.at<uchar>(i, j) == 255
+			 || mh1.at<uchar>(i, j) == 255
+			 || mh2.at<uchar>(i, j) == 255) {
+
 				dst.at<uchar>(i, j) = 255;
 			}
 		}
 	}
+}
+
+
+void drawHull(cv::Mat& src, cv::Mat& dst) {
+	cvtColor(src, dst, CV_BGR2GRAY);
+	blur(dst, dst, Size(3, 3));
 }

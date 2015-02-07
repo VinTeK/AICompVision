@@ -14,64 +14,82 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	cout << cam.get(CV_CAP_PROP_FRAME_HEIGHT) << "x" << cam.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
+	// get dims of video capture
+	int camHeight = static_cast<int>(cam.get(CV_CAP_PROP_FRAME_HEIGHT));
+	int camWidth = static_cast<int>(cam.get(CV_CAP_PROP_FRAME_WIDTH));
 
-	namedWindow("MainWindow", CV_WINDOW_AUTOSIZE);
+	cout << camHeight << "x" << camWidth << endl;
 
-	namedWindow("MyVideo0", WINDOW_AUTOSIZE);
-	Mat frame0;
+	// create window that shows the unchanged webcam output
+	namedWindow("UnchangedOutput", CV_WINDOW_AUTOSIZE);
+	//create window that shows skin detection
+	namedWindow("SkinDetection", WINDOW_AUTOSIZE);
+	// create window that show pixel diffs per frame
+	//namedWindow("FrameDiff", WINDOW_AUTOSIZE);
+	// create window that show motion energy history
+	//namedWindow("MotionHistory", WINDOW_AUTOSIZE);
 
-	// read a new frame from video
-	if (!cam.read(frame0)) {
-		cerr << "Cannot read a frame from video stream" << endl;
-	}
-
-	//show the frame in "MyVideo" window
-	imshow("MyVideo0", frame0);
-
-	//create a window called "MyVideo"
-	namedWindow("MyVideo", WINDOW_AUTOSIZE);
-	namedWindow("MyVideoMH", WINDOW_AUTOSIZE);
-
-	vector<Mat> myMotionHistory;
+#if 0
+	// initialize motion history vector
+	vector<Mat> motionHist;
 	Mat fMH1, fMH2, fMH3;
-	fMH1 = Mat::zeros(frame0.rows, frame0.cols, CV_8UC1);
+	fMH1 = Mat::zeros(camHeight, camWidth, CV_8UC1);
 	fMH2 = fMH1.clone();
 	fMH3 = fMH1.clone();
-	myMotionHistory.push_back(fMH1);
-	myMotionHistory.push_back(fMH2);
-	myMotionHistory.push_back(fMH3);
+	motionHist.push_back(fMH1);
+	motionHist.push_back(fMH2);
+	motionHist.push_back(fMH3);
+#endif
 
+	// read a single frame now to have a frame to compare
+	Mat prevFrame;
+	if (!cam.read(prevFrame)) {
+		cerr << "Cannot read a frame from video stream" << endl;
+		return -1;
+	}
+
+	// loop frame by frame
 	while (1) {
-		// read frame by frame
-		Mat frame;
-		if (!cam.read(frame)) {
+		Mat curFrame;
+		if (!cam.read(curFrame)) {
 			cerr << "Cannot read a frame from video stream" << endl;
 			break;
 		}
+		// create a zero array of same size as video capture
+		Mat frameDst = Mat::zeros(curFrame.rows, curFrame.cols, CV_8UC1); 
 
-		//Returns a zero array of same size as src mat, and of type CV_8UC1
-		Mat frameDest = Mat::zeros(frame.rows, frame.cols, CV_8UC1); 
+		// display this frame without any changes
+		imshow("UnchangedOutput", curFrame);
 
-		mySkinDetect(frame, frameDest);
+		// display video with skin tones colored white
+		mySkinDetect(curFrame, frameDst);
+		Mat hull = Mat::zeros(frameDst.rows, frameDst.cols, CV_8UC1);
+		drawHull(frameDst, hull);
+		imshow("SkinDetection", frameDst);
+		break;
 
-		//myFrameDifferencing(frame0, frame, frameDest);
-		imshow("MyVideo", frameDest);
-		myMotionHistory.erase(myMotionHistory.begin());
-		myMotionHistory.push_back(frameDest);
-		Mat myMH = Mat::zeros(frame0.rows, frame0.cols, CV_8UC1);
+		// highlights pixels in this frame that are different from last frame
+		//myFrameDifferencing(prevFrame, curFrame, frameDst);
+		//imshow("FrameDiff", frameDst);
 
-		myMotionEnergy(myMotionHistory, myMH);
-
-		imshow("MyVideoMH", myMH); //show the frame in "MyVideo" window
-		frame0 = frame;
+		/*
+		// delete the oldest frame and add the newest frame
+		motionHist.erase(motionHist.begin());
+		motionHist.push_back(frameDst);
+		Mat fMH = Mat::zeros(camHeight, camWidth, CV_8UC1);
+		myMotionEnergy(motionHist, fMH);
+		imshow("MotionHistory", fMH);
+		*/
 
 		// break loop if user hits key
 		if (waitKey(30) == 27) {
 			cout << "esc key is pressed by user" << endl;
 			break;
 		}
+
+		prevFrame = curFrame;
 	}
+	waitKey(-1);
 
 	cam.release();
 	destroyWindow("MainWindow");
