@@ -37,12 +37,37 @@ void mySkinDetect(Mat& src, Mat& dst) {
 }
 
 
-void myFrameDifferencing(Mat& prev, Mat& curr, Mat& dst) {
-	absdiff(prev, curr, dst);
+/*void myFrameDifferencing(Mat& src, Mat& dst) {
+	absdiff(src, dst);
 	Mat grey = dst.clone();
 	cvtColor(dst, grey, CV_BGR2GRAY);
-	dst = grey > 50; // default 50
+	dst = grey > 40; // default 50
 	Vec3b intensity = dst.at<Vec3b>(100, 100);
+}*/
+void myFrameDifferencing(Mat& src, Mat& dst, Mat& image )
+{
+	//Mat image = src.clone();
+	printf("frame rows %d Cols %d\n", image.rows, image.cols);
+
+	for (int rows = 0; rows < image.rows; rows++)
+	{
+		for (int cols = 0; cols < image.cols; cols++)
+		{
+			/*  printf("BGR value %lf %lf %lf\n" , abs(prev_frame.at<cv::Vec3b>(rows,cols)[0] -
+			curr_frame.at<cv::Vec3b>(rows,cols)[0]),
+			abs(prev_frame.at<cv::Vec3b>(rows,cols)[1] -
+			curr_frame.at<cv::Vec3b>(rows,cols)[0]),
+			abs(prev_frame.at<cv::Vec3b>(rows,cols)[2] -
+			curr_frame.at<cv::Vec3b>(rows,cols)[0]));
+			*/
+			image.at<cv::Vec3b>(rows, cols)[0] = abs(src.at<cv::Vec3b>(rows, cols)[0] -
+				dst.at<cv::Vec3b>(rows, cols)[0]);
+			image.at<cv::Vec3b>(rows, cols)[1] = abs(src.at<cv::Vec3b>(rows, cols)[1] -
+				dst.at<cv::Vec3b>(rows, cols)[1]);
+			image.at<cv::Vec3b>(rows, cols)[2] = abs(src.at<cv::Vec3b>(rows, cols)[2] -
+				dst.at<cv::Vec3b>(rows, cols)[2]);
+		}
+	}
 }
 
 
