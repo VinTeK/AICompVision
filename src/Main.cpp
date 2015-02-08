@@ -46,17 +46,28 @@ int main(int argc, char** argv) {
 		imshow("win0", curFrame);
 
 		// display video with skin tones colored white
-		mySkinDetect(curFrame, tmpFrame0);
+		//mySkinDetect(curFrame, tmpFrame0);
+		//imshow("UnchangedOutput", curFrame);
+		
 
 		// highlights pixels in this frame that are different from last frame
-		//myFrameDifferencing(prevFrame, curFrame, tmpFrame0);
-
-		//bgsub.operator() (curFrame, tmpFrame1);
-		erode(tmpFrame0, tmpFrame0, Mat());
-		dilate(tmpFrame0, tmpFrame0, Mat());
-		drawHull(tmpFrame0, tmpFrame1);
-
-		imshow("win1", tmpFrame1);
+		myFrameDifferencing(prevFrame, curFrame, tmpFrame0);
+		mySkinDetect(tmpFrame0, tmpFrame1);
+		//imshow("FrameDiff", tmpFrame0);
+		//bgsub.operator() (tmpFrame0, tmpFrame0);
+		//imshow("Background Subtractor", tmpFrame1);
+		erode(tmpFrame1, tmpFrame1, Mat());
+		dilate(tmpFrame1, tmpFrame1, Mat());
+		drawHull(tmpFrame1, tmpFrame2);
+		imshow("Erode dilate", tmpFrame2);
+		/*
+		// delete the oldest frame and add the newest frame
+		motionHist.erase(motionHist.begin());
+		motionHist.push_back(dstFrame);
+		Mat fMH = Mat::zeros(camHeight, camWidth, CV_8UC1);
+		myMotionEnergy(motionHist, fMH);
+		imshow("MotionHistory", fMH);
+		*/
 
 		// break loop if user hits key
 		if (waitKey(30) == 27) {
