@@ -1,6 +1,4 @@
 #include "stdafx.h"
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/video/background_segm.hpp>
 #include "Utils.hpp"
 
 using namespace cv;
@@ -48,19 +46,18 @@ void myFrameDifferencing(Mat& prev, Mat& curr, Mat& dst) {
 }
 
 
-// lifted from http://docs.opencv.org/doc/tutorials/imgproc/shapedescriptors/hull/hull.html
+// based off of http://docs.opencv.org/doc/tutorials/imgproc/shapedescriptors/hull/hull.html
 void drawHull(cv::Mat& src, cv::Mat& dst) {
 	static RNG rng(12345);
 
-	blur(src, src, Size(3, 3));
+	blur(src, src, Size(5, 5));
 
 	vector<vector<Point> > contours;
-	vector<Vec4i> hierarchy;
 
-	// Find external contours
-	findContours(src, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+	// find external contours
+	findContours(src, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, Point(0, 0));
 
-	// Find the convex hull object for each contour
+	// find the convex hull object for each contour
 	vector<vector<Point> > hull(contours.size());
 	for (size_t i = 0; i < contours.size(); ++i) {
 		if (contourArea(contours[i]) >= 5000) {
@@ -68,13 +65,15 @@ void drawHull(cv::Mat& src, cv::Mat& dst) {
 		}
 	}
 
-	// Draw contours + hull results
-	Mat drawing = Mat::zeros(src.size(), CV_8UC3);
+	//vector<Vec4i> defects;
+	// find convexity defeats for each contour
+	//convexityDefects(contours, hull, defects);
+
+	// draw contours + hull results
 	for (size_t i = 0; i < contours.size(); ++i) {
 		Scalar color = Scalar(rand() & 255, rand() & 255, rand() & 255);
-		drawContours(drawing, contours, i, color, 1, 8, vector<Vec4i>(), 0, Point());
-		drawContours(drawing, hull, i, color, 2, 8, vector<Vec4i>(), 0, Point());
+		drawContours(dst, contours, i, color, 1, 8, vector<Vec4i>(), 0, Point());
+		drawContours(dst, hull, i, color, 2, 8, vector<Vec4i>(), 0, Point());
 	}
-	dst = drawing;
 }
 
