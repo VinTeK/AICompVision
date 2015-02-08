@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/video/background_segm.hpp>
 #include "Utils.hpp"
 
 using namespace cv;
@@ -42,7 +43,7 @@ void myFrameDifferencing(Mat& prev, Mat& curr, Mat& dst) {
 	absdiff(prev, curr, dst);
 	Mat grey = dst.clone();
 	cvtColor(dst, grey, CV_BGR2GRAY);
-	dst = grey > 35; // default 50
+	dst = grey > 50; // default 50
 	Vec3b intensity = dst.at<Vec3b>(100, 100);
 }
 
@@ -93,3 +94,4 @@ Mat drawHull(cv::Mat& src) {
 
 	return drawing;
 }
+

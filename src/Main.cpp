@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/video/background_segm.hpp>
+#include <opencv2/opencv.hpp>
 #include "Utils.hpp"
 
 using namespace cv;
@@ -48,6 +50,11 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
+	// initialize background subtraction algorithm
+	BackgroundSubtractorMOG2 bgsub;
+	bgsub.set("nmixtures", 3);
+	bgsub.set("detectShadows", false);
+
 	// loop frame by frame
 	while (1) {
 		Mat curFrame;
@@ -56,25 +63,31 @@ int main(int argc, char** argv) {
 			break;
 		}
 		// create a zero array of same size as video capture
-		Mat frameDst = Mat::zeros(curFrame.rows, curFrame.cols, CV_8UC1); 
+		Mat dstFrame = Mat::zeros(curFrame.rows, curFrame.cols, CV_8UC1); 
 
 		// display this frame without any changes
 		//imshow("UnchangedOutput", curFrame);
 
 		// display video with skin tones colored white
-		mySkinDetect(curFrame, frameDst);
-		imshow("UnchangedOutput", frameDst);
-		Mat hull = drawHull(frameDst);
-		imshow("SkinDetection", hull);
+		//mySkinDetect(curFrame, dstFrame);
+		imshow("UnchangedOutput", curFrame);
+		//Mat hull = drawHull(dstFrame);
+
+		bgsub.operator() (curFrame, dstFrame);
+
+		erode(dstFrame, dstFrame, Mat());
+		dilate(dstFrame, dstFrame, Mat());
+
+		imshow("SkinDetection", dstFrame);
 
 		// highlights pixels in this frame that are different from last frame
-		//myFrameDifferencing(prevFrame, curFrame, frameDst);
-		//imshow("FrameDiff", frameDst);
+		//myFrameDifferencing(prevFrame, curFrame, dstFrame);
+		//imshow("FrameDiff", dstFrame);
 
 		/*
 		// delete the oldest frame and add the newest frame
 		motionHist.erase(motionHist.begin());
-		motionHist.push_back(frameDst);
+		motionHist.push_back(dstFrame);
 		Mat fMH = Mat::zeros(camHeight, camWidth, CV_8UC1);
 		myMotionEnergy(motionHist, fMH);
 		imshow("MotionHistory", fMH);
@@ -91,7 +104,7 @@ int main(int argc, char** argv) {
 	//waitKey(-1);
 
 	cam.release();
-	destroyWindow("MainWindow");
+	destroyWindow("UnchangedOutput");
 	destroyWindow("SkinDetection");
 	//destroyWindow("FrameDiff");
 	//destroyWindow("MotionHistory");
