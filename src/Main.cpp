@@ -71,16 +71,16 @@ int main(int argc, char** argv) {
 		// display video with skin tones colored white
 		//mySkinDetect(curFrame, dstFrame);
 		imshow("UnchangedOutput", curFrame);
-		//Mat hull = drawHull(dstFrame);
 
 		// highlights pixels in this frame that are different from last frame
-		myFrameDifferencing(prevFrame, curFrame, dstFrame);
-		imshow("FrameDiff", dstFrame);
-		bgsub.operator() (dstFrame, newFrame);
-		imshow("Background Subtractor", newFrame);
-		erode(newFrame, newFrame, Mat());
-		dilate(newFrame, newFrame, Mat());
-		imshow("Erode dilate", newFrame);
+		//myFrameDifferencing(prevFrame, curFrame, dstFrame);
+		//imshow("FrameDiff", dstFrame);
+		bgsub.operator() (dstFrame, dstFrame);
+		imshow("Background Subtractor", dstFrame);
+		erode(dstFrame, dstFrame, Mat());
+		dilate(dstFrame, dstFrame, Mat());
+		Mat hull = drawHull(dstFrame);
+		imshow("Erode dilate", hull);
 		/*
 		// delete the oldest frame and add the newest frame
 		motionHist.erase(motionHist.begin());
