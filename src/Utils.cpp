@@ -48,26 +48,8 @@ void myFrameDifferencing(Mat& prev, Mat& curr, Mat& dst) {
 }
 
 
-void myMotionEnergy(Vector<Mat> mh, Mat& dst) {
-	Mat mh0 = mh[0];
-	Mat mh1 = mh[1];
-	Mat mh2 = mh[2];
-
-	for (int i = 0; i < dst.rows; i++){
-		for (int j = 0; j < dst.cols; j++){
-			if (mh0.at<uchar>(i, j) == 255
-				|| mh1.at<uchar>(i, j) == 255
-				|| mh2.at<uchar>(i, j) == 255) {
-
-				dst.at<uchar>(i, j) = 255;
-			}
-		}
-	}
-}
-
-
 // lifted from http://docs.opencv.org/doc/tutorials/imgproc/shapedescriptors/hull/hull.html
-Mat drawHull(cv::Mat& src) {
+void drawHull(cv::Mat& src, cv::Mat& dst) {
 	static RNG rng(12345);
 
 	blur(src, src, Size(3, 3));
@@ -81,17 +63,18 @@ Mat drawHull(cv::Mat& src) {
 	// Find the convex hull object for each contour
 	vector<vector<Point> > hull(contours.size());
 	for (size_t i = 0; i < contours.size(); ++i) {
-		convexHull(Mat(contours[i]), hull[i], false);
+		if (contourArea(contours[i]) >= 5000) {
+			convexHull(Mat(contours[i]), hull[i], false);
+		}
 	}
 
 	// Draw contours + hull results
 	Mat drawing = Mat::zeros(src.size(), CV_8UC3);
 	for (size_t i = 0; i < contours.size(); ++i) {
 		Scalar color = Scalar(rand() & 255, rand() & 255, rand() & 255);
-		//drawContours(drawing, contours, i, color, 1, 8, vector<Vec4i>(), 0, Point());
+		drawContours(drawing, contours, i, color, 1, 8, vector<Vec4i>(), 0, Point());
 		drawContours(drawing, hull, i, color, 2, 8, vector<Vec4i>(), 0, Point());
 	}
-
-	return drawing;
+	dst = drawing;
 }
 

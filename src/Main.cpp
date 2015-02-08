@@ -16,32 +16,9 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	// get dims of video capture
-	int camHeight = static_cast<int>(cam.get(CV_CAP_PROP_FRAME_HEIGHT));
-	int camWidth = static_cast<int>(cam.get(CV_CAP_PROP_FRAME_WIDTH));
-
-	cout << camHeight << "x" << camWidth << endl;
-
-	// create window that shows the unchanged webcam output
-	namedWindow("UnchangedOutput", CV_WINDOW_AUTOSIZE);
-	//create window that shows skin detection
-	namedWindow("SkinDetection", WINDOW_AUTOSIZE);
-	// create window that show pixel diffs per frame
-	//namedWindow("FrameDiff", WINDOW_AUTOSIZE);
-	// create window that show motion energy history
-	//namedWindow("MotionHistory", WINDOW_AUTOSIZE);
-
-#if 0
-	// initialize motion history vector
-	vector<Mat> motionHist;
-	Mat fMH1, fMH2, fMH3;
-	fMH1 = Mat::zeros(camHeight, camWidth, CV_8UC1);
-	fMH2 = fMH1.clone();
-	fMH3 = fMH1.clone();
-	motionHist.push_back(fMH1);
-	motionHist.push_back(fMH2);
-	motionHist.push_back(fMH3);
-#endif
+	namedWindow("win0", CV_WINDOW_AUTOSIZE);
+	namedWindow("win1", CV_WINDOW_AUTOSIZE);
+	//namedWindow("win2", CV_WINDOW_AUTOSIZE);
 
 	// read a single frame now to have a frame to compare
 	Mat prevFrame;
@@ -51,9 +28,7 @@ int main(int argc, char** argv) {
 	}
 
 	// initialize background subtraction algorithm
-	BackgroundSubtractorMOG2 bgsub;
-	bgsub.set("nmixtures", 3);
-	bgsub.set("detectShadows", false);
+	BackgroundSubtractorMOG2 bgsub(500, 16, false);
 
 	// loop frame by frame
 	while (1) {
@@ -62,33 +37,26 @@ int main(int argc, char** argv) {
 			cerr << "Cannot read a frame from video stream" << endl;
 			break;
 		}
-		// create a zero array of same size as video capture
-		Mat dstFrame = Mat::zeros(curFrame.rows, curFrame.cols, CV_8UC1); 
-		Mat newFrame = Mat::zeros(curFrame.rows, curFrame.cols, CV_8UC1);
+
+		Mat tmpFrame0 = Mat::zeros(curFrame.rows, curFrame.cols, CV_8UC1); 
+		Mat tmpFrame1 = Mat::zeros(curFrame.rows, curFrame.cols, CV_8UC1); 
+		Mat tmpFrame2 = Mat::zeros(curFrame.rows, curFrame.cols, CV_8UC1); 
+
 		// display this frame without any changes
-		//imshow("UnchangedOutput", curFrame);
+		imshow("win0", curFrame);
 
 		// display video with skin tones colored white
-		//mySkinDetect(curFrame, dstFrame);
-		imshow("UnchangedOutput", curFrame);
-		//Mat hull = drawHull(dstFrame);
+		mySkinDetect(curFrame, tmpFrame0);
 
 		// highlights pixels in this frame that are different from last frame
-		myFrameDifferencing(prevFrame, curFrame, dstFrame);
-		imshow("FrameDiff", dstFrame);
-		bgsub.operator() (dstFrame, newFrame);
-		imshow("Background Subtractor", newFrame);
-		erode(newFrame, newFrame, Mat());
-		dilate(newFrame, newFrame, Mat());
-		imshow("Erode dilate", newFrame);
-		/*
-		// delete the oldest frame and add the newest frame
-		motionHist.erase(motionHist.begin());
-		motionHist.push_back(dstFrame);
-		Mat fMH = Mat::zeros(camHeight, camWidth, CV_8UC1);
-		myMotionEnergy(motionHist, fMH);
-		imshow("MotionHistory", fMH);
-		*/
+		//myFrameDifferencing(prevFrame, curFrame, tmpFrame0);
+
+		//bgsub.operator() (curFrame, tmpFrame1);
+		erode(tmpFrame0, tmpFrame0, Mat());
+		dilate(tmpFrame0, tmpFrame0, Mat());
+		drawHull(tmpFrame0, tmpFrame1);
+
+		imshow("win1", tmpFrame1);
 
 		// break loop if user hits key
 		if (waitKey(30) == 27) {
@@ -98,13 +66,11 @@ int main(int argc, char** argv) {
 
 		prevFrame = curFrame;
 	}
-	//waitKey(-1);
 
 	cam.release();
-	destroyWindow("UnchangedOutput");
-	destroyWindow("SkinDetection");
-	//destroyWindow("FrameDiff");
-	//destroyWindow("MotionHistory");
+	destroyWindow("win0");
+	destroyWindow("win1");
+	//destroyWindow("win2");
 
 	return 0;
 }
