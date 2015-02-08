@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/video/background_segm.hpp>
 #include "Utils.hpp"
 
 using namespace cv;
@@ -93,3 +94,4 @@ Mat drawHull(cv::Mat& src) {
 
 	return drawing;
 }
+
