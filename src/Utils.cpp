@@ -42,7 +42,7 @@ void myFrameDifferencing(Mat& prev, Mat& curr, Mat& dst) {
 	absdiff(prev, curr, dst);
 	Mat grey = dst.clone();
 	cvtColor(dst, grey, CV_BGR2GRAY);
-	dst = grey > 35; // default 50
+	dst = grey > 50; // default 50
 	Vec3b intensity = dst.at<Vec3b>(100, 100);
 }
 

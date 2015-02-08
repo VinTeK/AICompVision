@@ -29,8 +29,9 @@ int main(int argc, char** argv) {
 	// create window that show motion energy history
 	//namedWindow("MotionHistory", WINDOW_AUTOSIZE);
 
-#if 0
+
 	// initialize motion history vector
+#if 0
 	vector<Mat> motionHist;
 	Mat fMH1, fMH2, fMH3;
 	fMH1 = Mat::zeros(camHeight, camWidth, CV_8UC1);
@@ -68,17 +69,15 @@ int main(int argc, char** argv) {
 		imshow("SkinDetection", hull);
 
 		// highlights pixels in this frame that are different from last frame
-		//myFrameDifferencing(prevFrame, curFrame, frameDst);
-		//imshow("FrameDiff", frameDst);
+		myFrameDifferencing(prevFrame, curFrame, frameDst);
+		imshow("FrameDiff", frameDst);
 
-		/*
-		// delete the oldest frame and add the newest frame
-		motionHist.erase(motionHist.begin());
+		//delete the oldest frame and add the newest frame
+		/*motionHist.erase(motionHist.begin());
 		motionHist.push_back(frameDst);
 		Mat fMH = Mat::zeros(camHeight, camWidth, CV_8UC1);
 		myMotionEnergy(motionHist, fMH);
-		imshow("MotionHistory", fMH);
-		*/
+		imshow("MotionHistory", fMH);*/
 
 		// break loop if user hits key
 		if (waitKey(30) == 27) {
