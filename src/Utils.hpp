@@ -37,14 +37,8 @@ pixel intensities in the current and previous image are not the same
 void myFrameDifferencing(cv::Mat& prev, cv::Mat& curr, cv::Mat& dst);
 
 /**
-Accumulates the frame differences within 3 frames.
-@param mh Vector of frame difference images
-@param dst The destination grayscale image storing the accumulation of the frame difference images
-*/
-void myMotionEnergy(cv::Vector<cv::Mat> mh, cv::Mat& dst);
-
-/**
 Returns a Mat with a convex hull on top of src.
-@param src The source color image
+@param src The source image
+@param src The destination image with convex hull overlayed
 */
-cv::Mat drawHull(cv::Mat& src);
+void drawHull(cv::Mat& src, cv::Mat& dst);
