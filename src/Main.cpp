@@ -5,7 +5,8 @@ using namespace cv;
 using namespace std;
 
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
 	// open the webcam
 	VideoCapture cam(0);
 	if (!cam.isOpened()) {
@@ -24,7 +25,8 @@ int main(int argc, char** argv) {
 	}
 
 	// loop frame by frame
-	while (1) {
+	while (1)
+	{
 		Mat curFrame;
 		if (!cam.read(curFrame)) {
 			cerr << "Cannot read a frame from video stream" << endl;

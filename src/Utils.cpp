@@ -4,7 +4,8 @@
 using namespace cv;
 
 
-int myMax(int a, int b, int c) {
+int myMax(int a, int b, int c)
+{
 	int m = a;
 	(void)((m < b) && (m = b));
 	(void)((m < c) && (m = c));
@@ -12,7 +13,8 @@ int myMax(int a, int b, int c) {
 }
 
 
-int myMin(int a, int b, int c) {
+int myMin(int a, int b, int c)
+{
 	int m = a;
 	(void)((m > b) && (m = b));
 	(void)((m > c) && (m = c));
@@ -20,16 +22,19 @@ int myMin(int a, int b, int c) {
 }
 
 
-void mySkinDetect(Mat& src, Mat& dst) {
-	for (int i = 0; i < src.rows; i++){
-		for (int j = 0; j < src.cols; j++){
+void mySkinDetect(Mat& src, Mat& dst)
+{
+	for (int i = 0; i < src.rows; i++)
+	{
+		for (int j = 0; j < src.cols; j++)
+		{
 			//For each pixel, compute the average intensity of the 3 color channels
 			Vec3b intensity = src.at<Vec3b>(i, j); //Vec3b is a vector of 3 uchar
 			int B = intensity[0]; int G = intensity[1]; int R = intensity[2];
 			if ((R > 95 && G > 40 && B > 20)
 				&& (myMax(R, G, B) - myMin(R, G, B) > 15)
-				&& (abs(R - G) > 15) && (R > G) && (R > B)) {
-
+				&& (abs(R - G) > 15) && (R > G) && (R > B))
+			{
 				dst.at<uchar>(i, j) = 255;
 			}
 		}
@@ -43,8 +48,8 @@ void mySkinDetect(Mat& src, Mat& dst) {
 	cvtColor(dst, grey, CV_BGR2GRAY);
 	dst = grey > 40; // default 50
 	Vec3b intensity = dst.at<Vec3b>(100, 100);
-}*/
-void myFrameDifferencing(Mat& src, Mat& dst, Mat& image )
+	}*/
+void myFrameDifferencing(Mat& src, Mat& dst, Mat& image)
 {
 	//Mat image = src.clone();
 	printf("frame rows %d Cols %d\n", image.rows, image.cols);
@@ -72,7 +77,8 @@ void myFrameDifferencing(Mat& src, Mat& dst, Mat& image )
 
 
 // based off of http://docs.opencv.org/doc/tutorials/imgproc/shapedescriptors/hull/hull.html
-void drawHull(cv::Mat& src, cv::Mat& dst) {
+void drawHull(cv::Mat& src, cv::Mat& dst)
+{
 	static RNG rng(12345);
 
 	blur(src, src, Size(5, 5));
@@ -84,8 +90,10 @@ void drawHull(cv::Mat& src, cv::Mat& dst) {
 
 	// find the convex hull object for each contour
 	vector<vector<Point> > hull(contours.size());
-	for (size_t i = 0; i < contours.size(); ++i) {
-		if (contourArea(contours[i]) >= 5000) {
+	for (size_t i = 0; i < contours.size(); ++i)
+	{
+		if (contourArea(contours[i]) >= 5000)
+		{
 			convexHull(Mat(contours[i]), hull[i], false);
 		}
 	}
@@ -95,7 +103,8 @@ void drawHull(cv::Mat& src, cv::Mat& dst) {
 	//convexityDefects(contours, hull, defects);
 
 	// draw contours + hull results
-	for (size_t i = 0; i < contours.size(); ++i) {
+	for (size_t i = 0; i < contours.size(); ++i)
+	{
 		Scalar color = Scalar(rand() & 255, rand() & 255, rand() & 255);
 		drawContours(dst, contours, i, color, 1, 8, vector<Vec4i>(), 0, Point());
 		drawContours(dst, hull, i, color, 2, 8, vector<Vec4i>(), 0, Point());
