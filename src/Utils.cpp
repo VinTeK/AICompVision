@@ -22,6 +22,24 @@ int myMin(int a, int b, int c)
 }
 
 
+float ptDist(const Point& a, const Point& b)
+{
+	float d = sqrt(fabs(pow(a.x - b.x, 2) + pow(a.y - b.y, 2)));
+	return d;
+}
+
+
+float getAngle(const Point& s, const Point& f, const Point& e) 
+{
+	float l1 = ptDist(f, s);
+	float l2 = ptDist(f, e);
+	float dot = (s.x - f.x)*(e.x - f.x) + (s.y - f.y)*(e.y - f.y);
+	float angle = acos(dot / (l1*l2));
+	angle = angle * 180 / 3.14159265;
+	return angle;
+}
+
+
 void mySkinDetect(Mat& src, Mat& dst)
 {
 	dst = Mat::zeros(src.rows, src.cols, CV_8UC1);
@@ -46,14 +64,20 @@ void mySkinDetect(Mat& src, Mat& dst)
 void myFrameDifferencing(Mat& prev, Mat& curr, Mat& dst)
 {
 	absdiff(prev, curr, dst);
-	Mat grey = dst.clone();
-	cvtColor(dst, grey, CV_BGR2GRAY);
-	dst = grey > 40; // default 50
+	Mat gs = dst.clone();
+	cvtColor(dst, gs, CV_BGR2GRAY);
+	dst = gs > 40;
 	Vec3b intensity = dst.at<Vec3b>(100, 100);
+
+	int B = intensity[0], G = intensity[1], R = intensity[2];
+	if (B > 200 && G > 200 && R > 200)
+	{
+		putText(curr, "Slap!", Point(0, 400), FONT_HERSHEY_COMPLEX, 1.5, Scalar(256, 256, 256), 2);
+		imwrite("slap.jpg", curr);
+	}
 }
 
 
-// based off of http://docs.opencv.org/doc/tutorials/imgproc/shapedescriptors/hull/hull.html
 void drawHull(cv::Mat& src, cv::Mat& dst)
 {
 	medianBlur(src, src, 5);

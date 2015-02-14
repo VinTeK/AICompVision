@@ -18,19 +18,23 @@ int main(int argc, char** argv)
 	//namedWindow("win1", CV_WINDOW_AUTOSIZE);
 
 	// read a single frame now to have a frame to compare
-	Mat prevFrame, curFrame, tmpFrame;
+	Mat prevFrame;
 	if (!cam.read(prevFrame)) {
 		cerr << "Cannot read a frame from video stream" << endl;
 		return -1;
 	}
 
-	// loop frame by frame
+	// looping frame by frame
 	while (1)
 	{
+		Mat curFrame, tmpFrame, cornerFrame;
+
 		if (!cam.read(curFrame)) {
 			cerr << "Cannot read a frame from video stream" << endl;
 			break;
 		}
+
+		myFrameDifferencing(prevFrame, curFrame, curFrame.clone());
 
 		mySkinDetect(curFrame, tmpFrame);
 		erode(tmpFrame, tmpFrame, Mat());
@@ -40,53 +44,72 @@ int main(int argc, char** argv)
 
 		medianBlur(tmpFrame, tmpFrame, 5);
 
+		// grab the skin detection frame and make a copy for pip feature
+		resize(tmpFrame, cornerFrame, Size(0, 0), 0.25, 0.25);
+		cvtColor(cornerFrame.clone(), cornerFrame, CV_GRAY2BGR);
+
 		vector<vector<Point> > contours;
 		vector<Vec4i> hierarchy;
 
 		// find external contours
 		findContours(tmpFrame, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
-		vector<vector<Point> > pHull(contours.size());
-		vector<vector<int> >   iHull(contours.size());
 		for (size_t i = 0; i < contours.size(); ++i)
 		{
-			convexHull(Mat(contours[i]), pHull[i]);
-			convexHull(Mat(contours[i]), iHull[i]);
-		}
-
-#if 0
-		for (size_t i = 0; i < contours.size(); ++i)
-		{
-			cout << "at the beginning" << ", " << i << endl;
+			// convex hulls and defects for current contour
 			vector<vector<Point> > pHull(1);
-			vector<vector<int> >   iHull(1);
-			convexHull(Mat(contours[i]), pHull[0]);
-			convexHull(Mat(contours[i]), iHull[0]);
-			cout << "before defects" << ", " << i << endl;
+			vector<int>   iHull;
 			vector<Vec4i> defects;
-			if (iHull[0].size() > 0)
-			{
-				convexityDefects(contours[i], iHull[0], defects);
+			Rect bounding = boundingRect(contours[i]);
 
-				cout << contours.size() << "\t" << defects.size() << endl;
-			}
-			cout << "after defects" << ", " << i << endl;
-#endif
-			for (size_t i = 0; i < contours.size(); ++i)
+			if (contourArea(contours[i]) > 5000)
 			{
-				vector<Vec4i> defects;
-				convexityDefects(contours[i], iHull[i], defects);
+				convexHull(contours[i], pHull[0]);
+				convexHull(contours[i], iHull);
+				convexityDefects(contours[i], iHull, defects);
 
+				// create a random color
 				Scalar color = Scalar(rand() & 255, rand() & 255, rand() & 255);
-				drawContours(curFrame, contours, i, color, 1, 8, hierarchy);
-				drawContours(curFrame, pHull, i, color, 2, 8);
-			}
 
-			//cout << defects[0][0] << endl;
-			//break;
+				rectangle(curFrame, bounding, color, 4);
+
+				//drawContours(curFrame, contours, i, color, 1, 8, hierarchy);
+				drawContours(curFrame, pHull, 0, color, 2, 8);
+
+				int digits = 0;
+				// iterate through every defect for current contour
+				for (size_t j = 0; j < defects.size(); ++j)
+				{
+					Point& srt = contours[i][defects[j][0]]; // point where defect begins
+					Point& end = contours[i][defects[j][1]]; // point where defect ends
+					Point& far = contours[i][defects[j][2]]; // point farthest from hull
+
+					// eliminate unwanted defects according to finger length to hand size ratio
+					int tolerence = bounding.height / 8;
+					float angle = 95;
+					if (ptDist(srt, far) > tolerence && ptDist(end, far) > tolerence &&
+						getAngle(srt, far, end) < angle)
+					{
+						++digits;
+						circle(curFrame, end, 5, color, 3);
+					}
+				}
+				Scalar white = Scalar(256, 256, 256);
+				if (digits == 0) {
+					putText(curFrame, "fist", Point(300, 400), FONT_HERSHEY_COMPLEX, 1.5, white, 2);
+				} else if (digits == 2 || digits == 3) {
+					putText(curFrame, "victory", Point(300, 400), FONT_HERSHEY_COMPLEX, 1.5, white, 2);
+				} else if (digits >= 4) {
+					putText(curFrame, "high five", Point(300, 400), FONT_HERSHEY_COMPLEX, 1.5, white, 2);
+				}
+			}
+			// draw the skin detection frame in the corner of the window
+			Rect roi(0, 0, cornerFrame.cols, cornerFrame.rows);
+			Mat subView = curFrame(roi);
+			cornerFrame.copyTo(subView);
 
 			imshow("win0", curFrame);
-		//}
+		}
 
 		/*=======*/
 

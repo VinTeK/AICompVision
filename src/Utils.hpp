@@ -20,6 +20,22 @@ Returns the minimum of 3 integers.
 int myMin(int a, int b, int c);
 
 /**
+Returns the distance between two points.
+@param a first point
+@param b second point
+*/
+float ptDist(const cv::Point& a, const cv::Point& b);
+
+/**
+Returns the angle between two defect points with respect to a defect point that is farthest from
+the hull.
+@param s the point where the defect begins
+@param f the point farthest from the hull
+@param e the point where the defect ends
+*/
+float getAngle(const cv::Point& s, const cv::Point& f, const cv::Point& e);
+
+/**
 Detects whether a pixel belongs to the skin based on RGB values.
 @param src The source color image
 @param dst The destination grayscale image where skin pixels are colored white and the rest are
