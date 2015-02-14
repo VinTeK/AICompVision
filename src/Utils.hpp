@@ -51,10 +51,3 @@ Does frame differencing between the current frame and the previous frame.
 pixel intensities in the current and previous image are not the same
 */
 void myFrameDifferencing(cv::Mat& prev, cv::Mat& curr, cv::Mat& dst);
-
-/**
-Returns a Mat with a convex hull on top of src.
-@param src The source image
-@param src The destination image with convex hull drawn on top
-*/
-void drawHull(cv::Mat& src, cv::Mat& dst);

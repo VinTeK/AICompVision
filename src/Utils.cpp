@@ -22,6 +22,7 @@ int myMin(int a, int b, int c)
 }
 
 
+// lifted from https://simena86.github.io/blog/2013/08/12/hand-tracking-and-recognition-with-opencv/
 float ptDist(const Point& a, const Point& b)
 {
 	float d = sqrt(fabs(pow(a.x - b.x, 2) + pow(a.y - b.y, 2)));
@@ -29,6 +30,7 @@ float ptDist(const Point& a, const Point& b)
 }
 
 
+// lifted from https://simena86.github.io/blog/2013/08/12/hand-tracking-and-recognition-with-opencv/
 float getAngle(const Point& s, const Point& f, const Point& e) 
 {
 	float l1 = ptDist(f, s);
@@ -73,31 +75,5 @@ void myFrameDifferencing(Mat& prev, Mat& curr, Mat& dst)
 	if (B > 200 && G > 200 && R > 200)
 	{
 		putText(curr, "Slap!", Point(0, 400), FONT_HERSHEY_COMPLEX, 1.5, Scalar(256, 256, 256), 2);
-		imwrite("slap.jpg", curr);
 	}
 }
-
-
-void drawHull(cv::Mat& src, cv::Mat& dst)
-{
-	medianBlur(src, src, 5);
-
-	vector<vector<Point> > contours;
-	vector<Vec4i> hierarchy;
-
-	// find external contours
-	findContours(src, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
-
-	for (size_t i = 0; i < hierarchy[i][0]; ++i)
-	{
-		vector<vector<Point> > hull(1);
-		if (contourArea(contours[i]) >= 5000)
-		{
-			convexHull(Mat(contours[i]), hull[0]);
-		}
-		Scalar color = Scalar(rand() & 255, rand() & 255, rand() & 255);
-		drawContours(dst, contours, 0, color, 1, 8, hierarchy);
-		//drawContours(dst, hull, 0, color, 2, 8);
-	}
-}
-
